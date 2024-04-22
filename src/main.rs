@@ -77,14 +77,20 @@ fn main() {
     }
 
     let mut sum = 0;
-     for number in matched_numbers {
-        if matched_symbols.iter().map(|m|number.is_adjacent(m)).fold(false, |acc, mk| acc || mk) {
-            sum += number.value;
-        }
 
-    }
+    matched_numbers.iter().for_each(|n| {if matched_symbols.iter().any(|s| n.is_adjacent(s)) {sum += n.value;}});
 
-    println!("Sum:  {}", sum);    
+    println!("Part 1 Sum:  {}", sum);
+
+
+    // Extract all * symbols
+    let star_symbols: Vec<Symbol> = matched_symbols.iter().filter(|s| s.symbol == '*').cloned().collect::<Vec<Symbol>>();
+
+    // Collect star with exactly two adjacent numbers
+    let gearssum = star_symbols.iter().for_each(|s| matched_numbers.iter().)
+
+
+
 }
 
 
