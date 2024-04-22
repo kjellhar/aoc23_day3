@@ -57,7 +57,6 @@ fn main() {
 
     // Read each line of file into a vector
     let lines: Vec<String> = read_lines(FILE_NAME); 
-    let line_len = lines[0].len();
 
     // Collect all numbers and symbols
     for (line_number, line) in lines.iter().enumerate() {     
@@ -78,16 +77,37 @@ fn main() {
 
     let mut sum = 0;
 
-    matched_numbers.iter().for_each(|n| {if matched_symbols.iter().any(|s| n.is_adjacent(s)) {sum += n.value;}});
+    matched_numbers
+            .iter()
+            .for_each(|n| {if matched_symbols
+                                            .iter()
+                                            .any(|s| n.is_adjacent(s)) {sum += n.value;}});
 
     println!("Part 1 Sum:  {}", sum);
 
 
+    let mut sum  = 0;
     // Extract all * symbols
-    let star_symbols: Vec<Symbol> = matched_symbols.iter().filter(|s| s.symbol == '*').cloned().collect::<Vec<Symbol>>();
+    let star_symbols: Vec<Symbol> = matched_symbols
+        .iter()
+        .filter(|s| s.symbol == '*')
+        .cloned()
+        .collect::<Vec<Symbol>>();
 
     // Collect star with exactly two adjacent numbers
-    let gearssum = star_symbols.iter().for_each(|s| matched_numbers.iter().)
+    for star in star_symbols {
+        let adjacent_numbers: Vec<Number> = matched_numbers
+            .iter()
+            .filter(|n| n.is_adjacent(&star))
+            .cloned() // Add this line to clone the elements
+            .collect(); // Remove the type annotation
+
+        if adjacent_numbers.len() == 2 {
+            sum += adjacent_numbers[0].value * adjacent_numbers[1].value;
+        }
+    }
+                            
+    println!("Part 2 Sum:  {}", sum);
 
 
 
