@@ -6,7 +6,6 @@ use regex::Regex;
 #[derive(Debug, Clone)]
 struct Number {
     pub value: usize,
-    pub is_valid: bool,
     pub on_line: usize,
     pub start_on_col: usize,
     pub end_on_col: usize,
@@ -16,16 +15,17 @@ impl Number {
     fn new(value: usize, on_line: usize, start_on_col: usize, end_on_col: usize) -> Number {
         Number {
             value,
-            is_valid: false,
             on_line,
             start_on_col,
             end_on_col,
         }
     }
 
-//    pub fn is_adjacent(&mut self, symb: &Symbol) {
-//        todo!();
-//    }
+    pub fn is_adjacent(&self, symb: &Symbol) -> bool {
+        if symb.on_line < self.on_line.saturating_sub(1) || symb.on_line > self.on_line + 1 {return false}
+        if symb.on_col < self.start_on_col.saturating_sub(1) || symb.on_col > self.end_on_col + 1 {return false}
+        return true
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -45,18 +45,19 @@ impl Symbol {
     }
 }
 
-//const FILE_NAME: &str = "input.txt";
-const FILE_NAME: &str = "testdata.txt";
+const FILE_NAME: &str = "input.txt";
+//const FILE_NAME: &str = "testdata.txt";
 
 fn main() {
 
     let mut matched_numbers: Vec<Number> = Vec::new();
     let mut matched_symbols: Vec<Symbol> = Vec::new();
     let reg_match_number: Regex = Regex::new(r"(\d+)").unwrap();
-    let reg_match_symbol: Regex = Regex::new(r"([^0-9.{1}])").unwrap();
+    let reg_match_symbol: Regex = Regex::new(r"([^0-9.])").unwrap();
 
     // Read each line of file into a vector
     let lines: Vec<String> = read_lines(FILE_NAME); 
+    let line_len = lines[0].len();
 
     // Collect all numbers and symbols
     for (line_number, line) in lines.iter().enumerate() {     
@@ -64,7 +65,7 @@ fn main() {
             .map(|m| Number::new(m.as_str().parse().unwrap(), 
                                              line_number, 
                                              m.start(), 
-                                             m.end()))
+                                             m.end()-1))
             .collect::<Vec<Number>>().clone());
         
         matched_symbols.extend(reg_match_symbol
@@ -75,12 +76,15 @@ fn main() {
             .collect::<Vec<Symbol>>().clone());      
     }
 
-    println!("{:?}", matched_numbers);
-    println!("{:?}", matched_symbols);
-    
+    let mut sum = 0;
+     for number in matched_numbers {
+        if matched_symbols.iter().map(|m|number.is_adjacent(m)).fold(false, |acc, mk| acc || mk) {
+            sum += number.value;
+        }
 
+    }
 
-    
+    println!("Sum:  {}", sum);    
 }
 
 
