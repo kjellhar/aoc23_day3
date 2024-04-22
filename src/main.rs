@@ -94,19 +94,37 @@ fn main() {
         .cloned()
         .collect::<Vec<Symbol>>();
 
-    // Collect star with exactly two adjacent numbers
-    for star in star_symbols {
-        let adjacent_numbers: Vec<Number> = matched_numbers
-            .iter()
-            .filter(|n| n.is_adjacent(&star))
-            .cloned() // Add this line to clone the elements
-            .collect(); // Remove the type annotation
+    // Collect star with exactly two adjacent numbers      
+    // for star in star_symbols {
+    //     let adjacent_numbers: Vec<Number> = matched_numbers
+    //         .iter()
+    //         .filter(|n| n.is_adjacent(&star))
+    //         .cloned() 
+    //         .collect(); 
 
-        if adjacent_numbers.len() == 2 {
-            sum += adjacent_numbers[0].value * adjacent_numbers[1].value;
-        }
-    }
-                            
+    //     if adjacent_numbers.len() == 2 {
+    //         sum += adjacent_numbers[0].value * adjacent_numbers[1].value;
+    //     }
+    // }
+
+    let sum = star_symbols
+        .iter()
+        .filter_map(|star| {
+            let mut adjacent_numbers = matched_numbers
+                .iter()
+                .filter(|n| n.is_adjacent(star))
+                .cloned();
+
+            if let (Some(first), Some(second)) = (adjacent_numbers.next(), adjacent_numbers.next()) {
+                if adjacent_numbers.next().is_none() {
+                    return Some(first.value * second.value);
+                }
+            }
+
+            None
+        })
+        .fold(0, |acc, x| acc + x);
+
     println!("Part 2 Sum:  {}", sum);
 
 
