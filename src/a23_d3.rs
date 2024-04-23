@@ -109,21 +109,18 @@ pub(crate) fn sum_gears(matched_symbols: &[Symbol], matched_numbers: &[Number]) 
     matched_symbols
         .iter()
         .filter(|s| s.symbol == '*')
-        .cloned()
-        .collect::<Vec<Symbol>>()
-        .iter()
         .filter_map(|star| {
             let adj = matched_numbers
                 .iter()
                 .filter(|m| m.is_adjacent(star))
-                .cloned()
-                .collect::<Vec<Number>>();
+                .collect::<Vec<_>>();
             if adj.len() == 2 {
-                return Some(adj[0].value * adj[1].value);
+                Some(adj[0].value * adj[1].value)
+            } else {
+                None
             }
-            None
         })
-        .sum::<usize>()
+        .sum()
 }
 
 pub(crate) fn read_lines(filename: &str) -> Vec<String> {
