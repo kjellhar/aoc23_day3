@@ -106,14 +106,11 @@ pub(crate) fn sum_adjacent(matched_numbers: &[Number], matched_symbols: &[Symbol
 }
 
 pub(crate) fn sum_gears(matched_symbols: &[Symbol], matched_numbers: &[Number]) -> usize {
-    let star_symbols: Vec<Symbol> = matched_symbols
+    matched_symbols
         .iter()
         .filter(|s| s.symbol == '*')
         .cloned()
-        .collect::<Vec<Symbol>>();
-
-    // Find all star symbols with exactly 2 adjacent numbers. Take the product of those two number and sum all the instances.
-    star_symbols
+        .collect::<Vec<Symbol>>()
         .iter()
         .filter_map(|star| {
             let adj = matched_numbers
