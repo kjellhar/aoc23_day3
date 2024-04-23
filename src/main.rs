@@ -49,9 +49,6 @@ const FILE_NAME: &str = "input.txt";
 //const FILE_NAME: &str = "testdata.txt";
 
 fn main() {
-
-    let mut matched_numbers: Vec<Number> = Vec::new();
-    let mut matched_symbols: Vec<Symbol> = Vec::new();
     let reg_match_number: Regex = Regex::new(r"(\d+)").unwrap();
     let reg_match_symbol: Regex = Regex::new(r"([^0-9.])").unwrap();
 
@@ -59,34 +56,38 @@ fn main() {
     let lines: Vec<String> = read_lines(FILE_NAME); 
 
     // Collect all numbers and symbols
-    for (line_number, line) in lines.iter().enumerate() {     
-        matched_numbers.extend(reg_match_number.find_iter(&line)
-            .map(|m| Number::new(m.as_str().parse().unwrap(), 
-                                             line_number, 
-                                             m.start(), 
-                                             m.end()-1))
-            .collect::<Vec<Number>>().clone());
-        
-        matched_symbols.extend(reg_match_symbol
-            .find_iter(&line)
-            .map(|m| Symbol::new(m.as_str().chars().next().unwrap(),
-                                                line_number,
-                                                m.start()))
-            .collect::<Vec<Symbol>>().clone());      
-    }
+    let matched_numbers: Vec<Number> = lines.iter()
+        .enumerate()
+        .flat_map(|(line_number, line)| {
+            reg_match_number.find_iter(line)
+                .map(move |m| Number::new(m.as_str().parse().unwrap(), 
+                                        line_number, 
+                                        m.start(), 
+                                        m.end()-1))
+                .collect::<Vec<Number>>()
+        })
+        .collect();
 
-    let mut sum = 0;
+        let matched_symbols: Vec<Symbol> = lines.iter()
+            .enumerate()
+            .flat_map(|(line_number, line)| {
+                reg_match_symbol.find_iter(line)
+                    .map(move |m| Symbol::new(m.as_str().chars().next().unwrap(),
+                            line_number,
+                                m.start()))
+                    .collect::<Vec<Symbol>>()
+            })
+            .collect();
 
-    matched_numbers
+
+    let sum = matched_numbers
             .iter()
-            .for_each(|n| {if matched_symbols
-                                            .iter()
-                                            .any(|s| n.is_adjacent(s)) {sum += n.value;}});
+            .filter(|n|matched_symbols.iter().any(|s| n.is_adjacent(s)))
+            .fold(0,|acc, n| acc + n.value );
 
     println!("Part 1 Sum:  {}", sum);
 
 
-    let mut sum  = 0;
     // Extract all * symbols
     let star_symbols: Vec<Symbol> = matched_symbols
         .iter()
@@ -94,18 +95,6 @@ fn main() {
         .cloned()
         .collect::<Vec<Symbol>>();
 
-    // Collect star with exactly two adjacent numbers      
-    // for star in star_symbols {
-    //     let adjacent_numbers: Vec<Number> = matched_numbers
-    //         .iter()
-    //         .filter(|n| n.is_adjacent(&star))
-    //         .cloned() 
-    //         .collect(); 
-
-    //     if adjacent_numbers.len() == 2 {
-    //         sum += adjacent_numbers[0].value * adjacent_numbers[1].value;
-    //     }
-    // }
 
     let sum = star_symbols
         .iter()
@@ -126,8 +115,6 @@ fn main() {
         .fold(0, |acc, x| acc + x);
 
     println!("Part 2 Sum:  {}", sum);
-
-
 
 }
 
