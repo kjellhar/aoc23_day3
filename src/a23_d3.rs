@@ -56,7 +56,7 @@ impl Symbol {
 pub(crate) fn collect_numbers(lines: &[String]) -> Vec<Number> {
     let reg_match_number: Regex = Regex::new(r"(\d+)").unwrap();
 
-    let matched_numbers: Vec<Number> = lines
+    lines
         .iter()
         .enumerate()
         .flat_map(|(line_number, line)| {
@@ -72,14 +72,13 @@ pub(crate) fn collect_numbers(lines: &[String]) -> Vec<Number> {
                 })
                 .collect::<Vec<Number>>()
         })
-        .collect();
-    matched_numbers
+        .collect()
 }
 
 pub(crate) fn collect_symbols(lines: &[String]) -> Vec<Symbol> {
     let reg_match_symbol: Regex = Regex::new(r"([^0-9.])").unwrap();
 
-    let matched_symbols: Vec<Symbol> = lines
+    lines
         .iter()
         .enumerate()
         .flat_map(|(line_number, line)| {
@@ -90,12 +89,11 @@ pub(crate) fn collect_symbols(lines: &[String]) -> Vec<Symbol> {
                 })
                 .collect::<Vec<Symbol>>()
         })
-        .collect();
-    matched_symbols
+        .collect()
 }
 
 pub(crate) fn sum_adjacent(matched_numbers: &[Number], matched_symbols: &[Symbol]) -> usize {
-    let sum = matched_numbers
+    matched_numbers
         .iter()
         .filter_map(|n| {
             if matched_symbols.iter().any(|s| n.is_adjacent(s)) {
@@ -104,8 +102,7 @@ pub(crate) fn sum_adjacent(matched_numbers: &[Number], matched_symbols: &[Symbol
                 None
             }
         })
-        .sum::<usize>();
-    sum
+        .sum::<usize>()
 }
 
 pub(crate) fn sum_gears(matched_symbols: &[Symbol], matched_numbers: &[Number]) -> usize {
@@ -116,7 +113,7 @@ pub(crate) fn sum_gears(matched_symbols: &[Symbol], matched_numbers: &[Number]) 
         .collect::<Vec<Symbol>>();
 
     // Find all star symbols with exactly 2 adjacent numbers. Take the product of those two number and sum all the instances.
-    let sum = star_symbols
+    star_symbols
         .iter()
         .filter_map(|star| {
             let adj = matched_numbers
@@ -129,8 +126,7 @@ pub(crate) fn sum_gears(matched_symbols: &[Symbol], matched_numbers: &[Number]) 
             }
             None
         })
-        .sum::<usize>();
-    sum
+        .sum::<usize>()
 }
 
 pub(crate) fn read_lines(filename: &str) -> Vec<String> {
