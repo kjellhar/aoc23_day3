@@ -82,9 +82,9 @@ fn main() {
 
     // Sum all numbers with adjacent symbol
     let sum = matched_numbers
-            .iter()
-            .filter(|n|matched_symbols.iter().any(|s| n.is_adjacent(s)))
-            .fold(0,|acc, n| acc + n.value );
+        .iter()
+        .filter_map(|n| if matched_symbols.iter().any(|s| n.is_adjacent(s)) { Some(n.value) } else { None })
+        .sum::<usize>();
 
     println!("Part 1 Sum:  {}", sum);
 
