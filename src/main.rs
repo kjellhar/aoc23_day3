@@ -49,13 +49,73 @@ const FILE_NAME: &str = "input.txt";
 //const FILE_NAME: &str = "testdata.txt";
 
 fn main() {
-    let reg_match_number: Regex = Regex::new(r"(\d+)").unwrap();
-    let reg_match_symbol: Regex = Regex::new(r"([^0-9.])").unwrap();
-
     // Read each line of file into a vector
     let lines: Vec<String> = read_lines(FILE_NAME); 
 
     // Collect all numbers
+    let matched_numbers = collect_numbers(&lines);
+
+    //Collect all symbols
+    let matched_symbols = collect_symbols(&lines);
+
+    // Sum all numbers with adjacent symbol
+    let sum = sum_adjacent(&matched_numbers, &matched_symbols);
+    println!("Part 1 Sum:  {}", sum);
+
+    // Extract all * symbols
+    let sum = sum_gears(&matched_symbols, &matched_numbers);
+    println!("Part 2 Sum:  {}", sum);
+}
+
+
+
+
+fn sum_gears(matched_symbols: &[Symbol], matched_numbers: &[Number]) -> usize {
+    let star_symbols: Vec<Symbol> = matched_symbols
+        .iter()
+        .filter(|s| s.symbol == '*')
+        .cloned()
+        .collect::<Vec<Symbol>>();
+    
+    // Find all star symbols with exactly 2 adjacent numbers. Take the product of those two number and sum all the instances.
+    let sum = star_symbols
+        .iter()
+        .filter_map(|star| {
+            let adj = matched_numbers.iter().filter(|m|m.is_adjacent(star)).cloned().collect::<Vec<Number>>();
+            if adj.len() == 2 {return Some(adj[0].value*adj[1].value)} 
+            None
+        })
+        .sum::<usize>();
+    sum
+    }
+
+fn sum_adjacent(matched_numbers: &[Number], matched_symbols: &[Symbol]) -> usize {
+    let sum = matched_numbers
+        .iter()
+        .filter_map(|n| if matched_symbols.iter().any(|s| n.is_adjacent(s)) { Some(n.value) } else { None })
+        .sum::<usize>();
+    sum
+}
+
+fn collect_symbols(lines: &[String]) -> Vec<Symbol> {
+    let reg_match_symbol: Regex = Regex::new(r"([^0-9.])").unwrap();
+
+    let matched_symbols: Vec<Symbol> = lines.iter()
+        .enumerate()
+        .flat_map(|(line_number, line)| {
+            reg_match_symbol.find_iter(line)
+                .map(move |m| Symbol::new(m.as_str().chars().next().unwrap(),
+                        line_number,
+                            m.start()))
+                .collect::<Vec<Symbol>>()
+        })
+        .collect();
+    matched_symbols
+}
+
+fn collect_numbers(lines: &[String]) -> Vec<Number> {
+    let reg_match_number: Regex = Regex::new(r"(\d+)").unwrap();
+
     let matched_numbers: Vec<Number> = lines.iter()
         .enumerate()
         .flat_map(|(line_number, line)| {
@@ -67,47 +127,7 @@ fn main() {
                 .collect::<Vec<Number>>()
         })
         .collect();
-
-    //Collect all symbols
-    let matched_symbols: Vec<Symbol> = lines.iter()
-        .enumerate()
-        .flat_map(|(line_number, line)| {
-            reg_match_symbol.find_iter(line)
-                .map(move |m| Symbol::new(m.as_str().chars().next().unwrap(),
-                        line_number,
-                            m.start()))
-                .collect::<Vec<Symbol>>()
-        })
-        .collect();
-
-    // Sum all numbers with adjacent symbol
-    let sum = matched_numbers
-        .iter()
-        .filter_map(|n| if matched_symbols.iter().any(|s| n.is_adjacent(s)) { Some(n.value) } else { None })
-        .sum::<usize>();
-
-    println!("Part 1 Sum:  {}", sum);
-
-
-    // Extract all * symbols
-    let star_symbols: Vec<Symbol> = matched_symbols
-        .iter()
-        .filter(|s| s.symbol == '*')
-        .cloned()
-        .collect::<Vec<Symbol>>();
-
-    // Find all star symbols with exactly 2 adjacent numbers. Take the product of those two number and sum all the instances.
-    let sum = star_symbols
-        .iter()
-        .filter_map(|star| {
-            let adj = matched_numbers.iter().filter(|m|m.is_adjacent(star)).cloned().collect::<Vec<Number>>();
-            if adj.len() == 2 {return Some(adj[0].value*adj[1].value)} 
-            None
-        })
-        .sum::<usize>();
-
-    println!("Part 2 Sum:  {}", sum);
-
+    matched_numbers
 }
 
 
