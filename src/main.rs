@@ -100,17 +100,8 @@ fn main() {
     let sum = star_symbols
         .iter()
         .filter_map(|star| {
-            let mut adjacent_numbers = matched_numbers
-                .iter()
-                .filter(|n| n.is_adjacent(star))
-                .cloned();
-
-            if let (Some(first), Some(second)) = (adjacent_numbers.next(), adjacent_numbers.next()) {
-                if adjacent_numbers.next().is_none() {
-                    return Some(first.value * second.value);
-                }
-            }
-
+            let adj = matched_numbers.iter().filter(|m|m.is_adjacent(star)).cloned().collect::<Vec<Number>>();
+            if adj.len() == 2 {return Some(adj[0].value*adj[1].value)} 
             None
         })
         .sum::<usize>();
