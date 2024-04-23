@@ -24,7 +24,7 @@ impl Number {
     pub fn is_adjacent(&self, symb: &Symbol) -> bool {
         if symb.on_line < self.on_line.saturating_sub(1) || symb.on_line > self.on_line + 1 {return false}
         if symb.on_col < self.start_on_col.saturating_sub(1) || symb.on_col > self.end_on_col + 1 {return false}
-        return true
+        true
     }
 }
 
@@ -55,7 +55,7 @@ fn main() {
     // Read each line of file into a vector
     let lines: Vec<String> = read_lines(FILE_NAME); 
 
-    // Collect all numbers and symbols
+    // Collect all numbers
     let matched_numbers: Vec<Number> = lines.iter()
         .enumerate()
         .flat_map(|(line_number, line)| {
@@ -68,18 +68,19 @@ fn main() {
         })
         .collect();
 
-        let matched_symbols: Vec<Symbol> = lines.iter()
-            .enumerate()
-            .flat_map(|(line_number, line)| {
-                reg_match_symbol.find_iter(line)
-                    .map(move |m| Symbol::new(m.as_str().chars().next().unwrap(),
-                            line_number,
-                                m.start()))
-                    .collect::<Vec<Symbol>>()
-            })
-            .collect();
+    //Collect all symbols
+    let matched_symbols: Vec<Symbol> = lines.iter()
+        .enumerate()
+        .flat_map(|(line_number, line)| {
+            reg_match_symbol.find_iter(line)
+                .map(move |m| Symbol::new(m.as_str().chars().next().unwrap(),
+                        line_number,
+                            m.start()))
+                .collect::<Vec<Symbol>>()
+        })
+        .collect();
 
-
+    // Sum all numbers with adjacent symbol
     let sum = matched_numbers
             .iter()
             .filter(|n|matched_symbols.iter().any(|s| n.is_adjacent(s)))
@@ -95,7 +96,7 @@ fn main() {
         .cloned()
         .collect::<Vec<Symbol>>();
 
-
+    // Find all star symbols with exactly 2 adjacent numbers. Take the product of those two number and sum all the instances.
     let sum = star_symbols
         .iter()
         .filter_map(|star| {
@@ -112,7 +113,7 @@ fn main() {
 
             None
         })
-        .fold(0, |acc, x| acc + x);
+        .sum::<usize>();
 
     println!("Part 2 Sum:  {}", sum);
 
@@ -124,6 +125,6 @@ fn read_lines(filename: &str) -> Vec<String> {
     let file = File::open(filename).unwrap();
     let reader = io::BufReader::new(file);
     reader.lines()
-        .filter_map(|result| result.ok())
+        .map_while(Result::ok)
         .collect()
 }
