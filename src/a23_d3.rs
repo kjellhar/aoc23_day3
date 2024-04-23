@@ -108,17 +108,20 @@ pub(crate) fn sum_adjacent(matched_numbers: &[Number], matched_symbols: &[Symbol
 pub(crate) fn sum_gears(matched_symbols: &[Symbol], matched_numbers: &[Number]) -> usize {
     matched_symbols
         .iter()
-        .filter(|s| s.symbol == '*')
         .filter_map(|star| {
-            let adj = matched_numbers
+            if star.symbol != '*' {
+                return None;
+            }
+
+            let adjacent = matched_numbers
                 .iter()
                 .filter(|m| m.is_adjacent(star))
                 .collect::<Vec<_>>();
-            if adj.len() == 2 {
-                Some(adj[0].value * adj[1].value)
-            } else {
-                None
+
+            if adjacent.len() != 2 {
+                return None;
             }
+            Some(adjacent[0].value * adjacent[1].value)
         })
         .sum()
 }
